@@ -1,11 +1,9 @@
 
 const AdminModel = require('../models/adminSchema.model.js');
+const { comparePassword, generateHashedPassword } = require('../utils/passwordHasher.js');
 
-const adminRegister = async (req, res) => {
+const adminRegister = async (req, res, next) => {
     try {
-        const admin = new AdminModel({
-            ...req.body
-        });
 
         const existingAdminByEmail = await AdminModel.findOne({ email: req.body.email });
         const existingSchool = await AdminModel.findOne({ schoolName: req.body.schoolName });
@@ -17,8 +15,9 @@ const adminRegister = async (req, res) => {
             res.send({ message: 'School name already exists' });
         }
         else {
-            let result = await admin.save();
-            result.password = undefined;
+            const hashedPassword = await generateHashedPassword(req.body.password);
+            let result = await AdminModel.create({ password: hashedPassword, ...req.body, });
+            
             res.send(result);
         }
     } catch (err) {
