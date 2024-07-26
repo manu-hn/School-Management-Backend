@@ -6,8 +6,8 @@ const { generateHashedPassword } = require('../utils/passwordHasher.js');
 const teacherRegister = async (req, res) => {
     const { name, email, password, role, school, teachSubject, teachSclass } = req.body;
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPass = await bcrypt.hash(password, salt);
+
+        const hashedPass = await generateHashedPassword(password);
 
         const teacher = new TeacherModel({ name, email, password: hashedPass, role, school, teachSubject, teachSclass });
 
