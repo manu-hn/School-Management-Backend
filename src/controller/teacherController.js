@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const TeacherModel = require('../models/teacherSchema.model.js');
 
 const teacherRegister = async (req, res) => {
@@ -86,15 +86,15 @@ const getTeacherDetail = async (req, res) => {
 }
 
 const updateTeacherSubject = async (req, res) => {
-    const { teacherId, teachSubject } = req.body;
+    const { teacherId, teacherSubject } = req.body;
     try {
         const updatedTeacher = await TeacherModel.findByIdAndUpdate(
             teacherId,
-            { teachSubject },
+            { teacherSubject },
             { new: true }
         );
 
-        await Subject.findByIdAndUpdate(teachSubject, { teacher: updatedTeacher._id });
+        await Subject.findByIdAndUpdate(teacherSubject, { teacher: updatedTeacher._id });
 
         res.send(updatedTeacher);
     } catch (error) {
