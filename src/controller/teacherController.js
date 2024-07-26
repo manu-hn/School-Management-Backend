@@ -4,6 +4,8 @@ const TeacherModel = require('../models/teacherSchema.model.js');
 const teacherRegister = async (req, res) => {
     const { name, email, password, role, school, teachSubject, teachSclass } = req.body;
     try {
+
+        
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt);
 

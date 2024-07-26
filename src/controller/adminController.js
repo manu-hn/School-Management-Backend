@@ -54,8 +54,9 @@ const adminLogIn = async (req, res, next) => {
 
 const getAdminDetail = async (req, res, next) => {
     try {
-        const { id } = req?.params;
-        let admin = await AdminModel.findById({ id });
+
+        let admin = await AdminModel.findById(req.params.id);
+
         if (admin) {
             const { password, ...data } = admin?._doc;
             return res.status(200).json({ error: false, data });
