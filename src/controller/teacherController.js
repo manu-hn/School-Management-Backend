@@ -1,11 +1,13 @@
 const bcrypt = require('bcryptjs');
 const TeacherModel = require('../models/teacherSchema.model.js');
+const SubjectModel = require('../models/subjectSchema.model.js');
+const { generateHashedPassword } = require('../utils/passwordHasher.js');
 
 const teacherRegister = async (req, res) => {
     const { name, email, password, role, school, teachSubject, teachSclass } = req.body;
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPass = await bcrypt.hash(password, salt);
+
+        const hashedPass = await generateHashedPassword(password);
 
         const teacher = new TeacherModel({ name, email, password: hashedPass, role, school, teachSubject, teachSclass });
 
@@ -17,8 +19,8 @@ const teacherRegister = async (req, res) => {
         else {
             let result = await teacher.save();
             await Subject.findByIdAndUpdate(teachSubject, { teacher: teacher._id });
-            result.password = undefined;
-            res.send(result);
+            const { password, ...data } = result?._doc;
+            return res.status(201)({ error: false, message: "Registration Successful", data });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -34,16 +36,18 @@ const teacherLogIn = async (req, res) => {
                 teacher = await teacher.populate("teachSubject", "subName sessions")
                 teacher = await teacher.populate("school", "schoolName")
                 teacher = await teacher.populate("teachSclass", "sclassName")
-                teacher.password = undefined;
-                res.send(teacher);
+
+                const { password, ...data } = teacher?._doc;
+
+                return res.status(201)({ error: false, message: "Registration Successful", data });
             } else {
-                res.send({ message: "Invalid password" });
+                return res.status(404).json({ error: true, message: "Invalid password" });
             }
         } else {
-            res.send({ message: "Teacher not found" });
+            return res.send({ message: "Teacher not found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
@@ -53,12 +57,15 @@ const getTeachers = async (req, res) => {
             .populate("teachSubject", "subName")
             .populate("teachSclass", "sclassName");
         if (teachers.length > 0) {
+
             let modifiedTeachers = teachers.map((teacher) => {
-                return { ...teacher._doc, password: undefined };
+
+                const { password, ...teacherData } = teacher._doc;
+                return teacherData;
             });
-            res.send(modifiedTeachers);
+            return res.status(200).json({ error: false, message: "Successfully Fetched!", data: modifiedTeachers });
         } else {
-            res.send({ message: "No teachers found" });
+            return res.status(400).json({ error: true, message: "No teachers found" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -72,14 +79,15 @@ const getTeacherDetail = async (req, res) => {
             .populate("school", "schoolName")
             .populate("teachSclass", "sclassName")
         if (teacher) {
-            teacher.password = undefined;
-            res.send(teacher);
+            const { password, ...data } = teacher?._doc;
+
+            return res.status(200).json({ error: false, data });
         }
         else {
-            res.send({ message: "No teacher found" });
+            return res.status(400).json({ error: true, message: "No teacher found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 }
 
@@ -92,7 +100,7 @@ const updateTeacherSubject = async (req, res) => {
             { new: true }
         );
 
-        await Subject.findByIdAndUpdate(teacherSubject, { teacher: updatedTeacher._id });
+        await SubjectModel.findByIdAndUpdate(teacherSubject, { teacher: updatedTeacher._id });
 
         res.send(updatedTeacher);
     } catch (error) {
@@ -104,12 +112,12 @@ const deleteTeacher = async (req, res) => {
     try {
         const deletedTeacher = await TeacherModel.findByIdAndDelete(req.params.id);
 
-        await Subject.updateOne(
+        await SubjectModel.updateOne(
             { teacher: deletedTeacher._id, teacher: { $exists: true } },
             { $unset: { teacher: 1 } }
         );
 
-        res.send(deletedTeacher);
+        return res.send(deletedTeacher);
     } catch (error) {
         res.status(500).json(error);
     }
@@ -122,18 +130,17 @@ const deleteTeachers = async (req, res) => {
         const deletedCount = deletionResult.deletedCount || 0;
 
         if (deletedCount === 0) {
-            res.send({ message: "No teachers found to delete" });
-            return;
+            return res.status(400).json({ error: true, message: "No teachers found to delete" });
         }
 
         const deletedTeachers = await TeacherModel.find({ school: req.params.id });
 
-        await Subject.updateMany(
+        await SubjectModel.updateMany(
             { teacher: { $in: deletedTeachers.map(teacher => teacher._id) }, teacher: { $exists: true } },
             { $unset: { teacher: "" }, $unset: { teacher: null } }
         );
 
-        res.send(deletionResult);
+        return res.send(deletionResult);
     } catch (error) {
         res.status(500).json(error);
     }
@@ -146,13 +153,12 @@ const deleteTeachersByClass = async (req, res) => {
         const deletedCount = deletionResult.deletedCount || 0;
 
         if (deletedCount === 0) {
-            res.send({ message: "No teachers found to delete" });
-            return;
+            return res.status(404).json({ error: true, message: "No teachers found to delete" });
         }
 
         const deletedTeachers = await TeacherModel.find({ sclassName: req.params.id });
 
-        await Subject.updateMany(
+        await SubjectModel.updateMany(
             { teacher: { $in: deletedTeachers.map(teacher => teacher._id) }, teacher: { $exists: true } },
             { $unset: { teacher: "" }, $unset: { teacher: null } }
         );
