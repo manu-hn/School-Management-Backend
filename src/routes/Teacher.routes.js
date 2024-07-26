@@ -9,18 +9,18 @@ const { deleteTeacher, deleteTeachers,
 const router = express.Router();
 
 
-router.post('/TeacherReg', teacherRegister);
-router.post('/TeacherLogin', teacherLogIn)
+router.post('/teacher-registration', teacherRegister);
+router.post('/teacher-login', teacherLogIn)
 
-router.get("/Teachers/:id", getTeachers)
-router.get("/Teacher/:id", getTeacherDetail)
+router.get("/get-teachers/:id", getTeachers)
+router.get("/get-teacher/:id", getTeacherDetail)
 
-router.delete("/Teachers/:id", deleteTeachers)
-router.delete("/TeachersClass/:id", deleteTeachersByClass)
-router.delete("/Teacher/:id", deleteTeacher)
+router.delete("/delete-teachers/:id", deleteTeachers)
+router.delete("/delete-teacher-by-class/:id", deleteTeachersByClass)
+router.delete("/delete-teacher/:id", deleteTeacher)
 
-router.put("/TeacherSubject", updateTeacherSubject)
+router.put("/update-teacher-subject", updateTeacherSubject)
 
-router.post('/TeacherAttendance/:id', teacherAttendance)
+router.post('/teacher-attendance/:id', teacherAttendance)
 
 module.exports = router;

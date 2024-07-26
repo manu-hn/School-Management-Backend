@@ -11,26 +11,26 @@ const router = express.Router();
 
 
 
-router.post('/StudentReg', studentRegister);
-router.post('/StudentLogin', studentLogIn)
+router.post('/student-registration', studentRegister);
+router.post('/student-login', studentLogIn)
 
-router.get("/Students/:id", getStudents)
-router.get("/Student/:id", getStudentDetail)
+router.get("/get-students/:id", getStudents)
+router.get("/get-student/:id", getStudentDetail)
 
-router.delete("/Students/:id", deleteStudents)
-router.delete("/StudentsClass/:id", deleteStudentsByClass)
-router.delete("/Student/:id", deleteStudent)
+router.delete("/delete-students/:id", deleteStudents)
+router.delete("/delete-students-by-class/:id", deleteStudentsByClass)
+router.delete("/delete-student/:id", deleteStudent)
 
-router.put("/Student/:id", updateStudent)
+router.put("/update-student/:id", updateStudent)
 
-router.put('/UpdateExamResult/:id', updateExamResult)
+router.put('/update-exam-result/:id', updateExamResult)
 
-router.put('/StudentAttendance/:id', studentAttendance)
+router.put('/student-attendance/:id', studentAttendance)
 
-router.put('/RemoveAllStudentsSubAtten/:id', clearAllStudentsAttendanceBySubject);
-router.put('/RemoveAllStudentsAtten/:id', clearAllStudentsAttendance);
+router.put('/remove-all-students-attendance-by-subject/:id', clearAllStudentsAttendanceBySubject);
+router.put('/remove-all-students-attendance/:id', clearAllStudentsAttendance);
 
-router.put('/RemoveStudentSubAtten/:id', removeStudentAttendanceBySubject);
-router.put('/RemoveStudentAtten/:id', removeStudentAttendance)
+router.put('/remove-students-attendance-by-subject:id', removeStudentAttendanceBySubject);
+router.put('/remove-student-attendance/:id', removeStudentAttendance)
 
 module.exports = router;
