@@ -9,53 +9,62 @@ const adminRegister = async (req, res, next) => {
         const existingSchool = await AdminModel.findOne({ schoolName: req.body.schoolName });
 
         if (existingAdminByEmail) {
-            res.send({ message: 'Email already exists' });
+            return res.status(400).json({ error: true, message: 'Email already exists' });
         }
         else if (existingSchool) {
-            res.send({ message: 'School name already exists' });
+            return res.status(400).json({ error: true, message: 'School name already exists' });
         }
         else {
             const hashedPassword = await generateHashedPassword(req.body.password);
-            let result = await AdminModel.create({ password: hashedPassword, ...req.body, });
-            
-            res.send(result);
+            let result = await AdminModel.create({ ...req.body, password: hashedPassword, });
+            const { password, ...data } = result?._doc;
+            return res.status(201).json({ error: false, message: `Admin Created Successfully for School ${req?.body?.schoolName}`, data });
         }
     } catch (err) {
-        res.status(500).json(err);
+
+        next(err);
     }
 };
 
-const adminLogIn = async (req, res) => {
-    if (req.body.email && req.body.password) {
-        let admin = await Admin.findOne({ email: req.body.email });
-        if (admin) {
-            if (req.body.password === admin.password) {
-                admin.password = undefined;
-                res.send(admin);
+const adminLogIn = async (req, res, next) => {
+    try {
+        const { email, password } = req?.body
+        if (email && password) {
+            const admin = await AdminModel.findOne({ email });
+            if (admin) {
+                const isValidPassword = await comparePassword(password, admin?.password);
+
+                if (isValidPassword) {
+                    const { password, ...data } = admin?._doc;
+                    return res.status(200).json({ error: false, message: "Login Successful!", data });
+                } else {
+                    return res.status(403).json({ message: "Invalid password" });
+                }
             } else {
-                res.send({ message: "Invalid password" });
+                return res.status(400).json({ message: "User not found" });
             }
         } else {
-            res.send({ message: "User not found" });
+            return res.status(400).json({ message: "Email and password are required" });
         }
-    } else {
-        res.send({ message: "Email and password are required" });
+    } catch (error) {
+        next(error)
     }
 };
 
 
-const getAdminDetail = async (req, res) => {
+const getAdminDetail = async (req, res, next) => {
     try {
-        let admin = await Admin.findById(req.params.id);
+        const { id } = req?.params;
+        let admin = await AdminModel.findById({ id });
         if (admin) {
-            admin.password = undefined;
-            res.send(admin);
+            const { password, ...data } = admin?._doc;
+            return res.status(200).json({ error: false, data });
         }
         else {
-            res.send({ message: "No admin found" });
+            return res.status(400).json({ error: true, message: "No admin found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        next(err)
     }
 }
 
