@@ -47,7 +47,7 @@ const adminLogIn = async (req, res) => {
 
 const getAdminDetail = async (req, res) => {
     try {
-        let admin = await Admin.findById(req.params.id);
+        let admin = await AdminModel.findById(req.params.id);
         if (admin) {
             admin.password = undefined;
             res.send(admin);

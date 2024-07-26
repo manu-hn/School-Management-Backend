@@ -2,7 +2,7 @@ const SubjectModel = require('../models/subjectSchema.model.js');
 const TeacherModel = require('../models/teacherSchema.model.js');
 const StudentModel = require('../models/studentScheme.model.js');
 
-const subjectCreate = async (req, res) => {
+const subjectCreate = async (req, res, next) => {
     try {
         const subjects = req.body.subjects.map((subject) => ({
             subName: subject.subName,
@@ -28,7 +28,7 @@ const subjectCreate = async (req, res) => {
             res.send(result);
         }
     } catch (err) {
-        res.status(500).json(err);
+        next(err);
     }
 };
 
@@ -50,25 +50,25 @@ const classSubjects = async (req, res) => {
     try {
         let subjects = await SubjectModel.find({ sclassName: req.params.id })
         if (subjects.length > 0) {
-            res.send(subjects)
+            return res.status(200).json({ error: false, data: subjects })
         } else {
-            res.send({ message: "No subjects found" });
+            return res.status(400).json({ message: "No subjects found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        next(err);
     }
 };
 
-const freeSubjectList = async (req, res) => {
+const freeSubjectList = async (req, res, next) => {
     try {
         let subjects = await SubjectModel.find({ sclassName: req.params.id, teacher: { $exists: false } });
         if (subjects.length > 0) {
-            res.send(subjects);
+            return res.status(200).json({ error: false, data: subjects })
         } else {
-            res.send({ message: "No subjects found" });
+            return res.status(400).json({ message: "No subjects found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        next(err);
     }
 };
 
@@ -78,13 +78,13 @@ const getSubjectDetail = async (req, res) => {
         if (subject) {
             subject = await subject.populate("sclassName", "sclassName")
             subject = await subject.populate("teacher", "name")
-            res.send(subject);
+            return res.status(200).json({ error: false, data: subject })
         }
         else {
-            res.send({ message: "No subject found" });
+            return res.status(400).json({ message: "No subject found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        next(err);
     }
 }
 
