@@ -3,15 +3,15 @@ const { deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents, sclass
 
 const router = express.Router();
 
-router.post('/s-class-create', sclassCreate);
+router.post('/SclassCreate', sclassCreate);
 
-router.get('/s-class-list/:id', sclassList);
-router.get("/s-class/:id", getSclassDetail)
+router.get('/SclassList/:id', sclassList);
+router.get("/Sclass/:id", getSclassDetail)
 
-router.get("/s-class/students/:id", getSclassStudents)
+router.get("/Sclass/Students/:id", getSclassStudents)
 
-router.delete("/s-classes/:id", deleteSclasses)
-router.delete("/s-class/:id", deleteSclass)
+router.delete("/Sclasses/:id", deleteSclasses)
+router.delete("/Sclass/:id", deleteSclass)
 
 
 module.exports = router;

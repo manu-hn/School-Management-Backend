@@ -3,10 +3,9 @@ const { generateHashedPassword } = require('../utils/passwordHasher.js');
 
 const studentRegister = async (req, res, next) => {
     try {
-
         const hashedPassword = await generateHashedPassword(req?.body?.password);
-
-        const existingStudent = await Student.findOne({
+       
+        const existingStudent = await StudentModel.findOne({
             rollNum: req.body.rollNum,
             school: req.body.adminID,
             sclassName: req.body.sclassName,
@@ -14,33 +13,37 @@ const studentRegister = async (req, res, next) => {
 
         if (existingStudent) {
             return res.status(400).json({ error: true, message: 'Roll Number already exists' });
-        }
-        else {
-
+        } else {
             const newStudent = await StudentModel.create({
-                ...req.body, school: req.body.adminID,
+                ...req.body,
+                school: req.body.adminID,
                 password: hashedPassword
-            })
+            });
 
             const { password, ...data } = newStudent?._doc;
-            return res.status(400).json({ error: false, message: `Student Data Created Successfully`, data });
+            return res.status(200).json({ error: false, message: 'Student Data Created Successfully', data });
         }
     } catch (err) {
         next(err);
     }
 };
 
-const studentLogIn = async (req, res) => {
+
+const studentLogIn = async (req, res, next) => {
     try {
-        let student = await StudentModel.findOne({ rollNum: req.body.rollNum, name: req.body.studentName });
+        console.log(req.body);
+
+        let student = await StudentModel.findOne({ rollNum: req.body.rollNum, studentName: req.body.studentName });
+       
+
         if (student) {
             const isValidPassword = await generateHashedPassword(req.body.password, student.password);
 
             if (isValidPassword) {
-                student = await student.populate("school", "schoolName")
-                student = await student.populate("sclassName", "sclassName")
+                student = await student.populate("school", "schoolName");
+                student = await student.populate("sclassName", "sclassName");
 
-                const { password, examResult, attendance, ...data } = student;
+                const { password, examResult, attendance, ...data } = student.toObject(); // Use toObject() to convert to a plain object
                 return res.status(200).json({ error: false, message: "Login Successful!", data });
             } else {
                 return res.status(400).json({ error: true, message: "Invalid password" });
@@ -99,7 +102,7 @@ const getStudentDetail = async (req, res, next) => {
 const deleteStudent = async (req, res) => {
     try {
         const result = await StudentModel.findByIdAndDelete(req.params.id)
-        res.status(200).json({ error: false, message: "Data Deleted", result })
+        res.status(200).json({ error: false, message: "Data Deleted", data: result })
     } catch (error) {
         res.status(500).json(err);
     }
@@ -112,7 +115,7 @@ const deleteStudents = async (req, res) => {
         if (result.deletedCount === 0) {
             return res.status(400).json({ error: true, message: "No students found to delete" });
         } else {
-            return res.status(200).json({ error: false, message: "Deleted Successfully!", result });
+            return res.status(200).json({ error: false, message: "Deleted Successfully!", data: result });
         }
     } catch (error) {
         res.status(500).json(err);
@@ -125,7 +128,7 @@ const deleteStudentsByClass = async (req, res) => {
         if (result.deletedCount === 0) {
             return res.status(400).json({ error: true, message: "No students found to delete" })
         } else {
-            return res.status(200).json({ error: false, message: "Deleted Successfully!", result });
+            return res.status(200).json({ error: false, message: "Deleted Successfully!", data: result });
         }
     } catch (error) {
         res.status(500).json(err);
@@ -210,7 +213,7 @@ const studentAttendance = async (req, res) => {
         }
 
         const result = await student.save();
-        return res.send(result);
+        return res.status(200).json({ error: false, data: result });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -226,7 +229,7 @@ const clearAllStudentsAttendanceBySubject = async (req, res) => {
         );
         return res.send(result);
     } catch (error) {
-       return res.status(500).json(error);
+        return res.status(500).json(error);
     }
 };
 

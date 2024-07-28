@@ -45,7 +45,7 @@ const getSclassDetail = async (req, res) => {
         let sclass = await S_ClassModel.findById(req.params.id);
         if (sclass) {
             sclass = await sclass.populate("school", "schoolName")
-            return res.send(sclass);
+            return res.status(200).json({ error: false, data: sclass });
         }
         else {
             return res.send({ message: "No class found" });
@@ -62,7 +62,7 @@ const getSclassStudents = async (req, res) => {
             let modifiedStudents = students.map((student) => {
                 return { ...student._doc, password: undefined };
             });
-            res.send(modifiedStudents);
+            res.status(200).json({ error: false, data: modifiedStudents });
         } else {
             res.send({ message: "No students found" });
         }

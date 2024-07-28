@@ -1,26 +1,24 @@
 const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
-    name: {
+    studentName: {
         type: String,
         required: true
     },
     gender: {
         type: String,
-        required: true,
+       
         enum: ['male', 'female'],
     },
     dateOfBirth: {
         type: Date,
-        required: true,
+       
     },
-    salary: {
-        type: Number,
-        required: true,
-    },
+
     rollNum: {
         type: Number,
-        required: true
+        required: true,
+        unique: true,
     },
     password: {
         type: String,
@@ -40,9 +38,10 @@ const studentSchema = new mongoose.Schema({
         type: String,
         default: "Student"
     },
-    isFeesPaid: {
-        type: Boolean,
-        default: false,
+  
+    feesPaid: {
+        type: Number,
+
     },
     examResult: [
         {

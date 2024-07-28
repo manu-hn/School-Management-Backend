@@ -9,16 +9,15 @@ const teacherRegister = async (req, res) => {
 
         const hashedPass = await generateHashedPassword(password);
 
-        const teacher = new TeacherModel({ name, email, password: hashedPass, role, school, teachSubject, teachSclass });
-
         const existingTeacherByEmail = await TeacherModel.findOne({ email });
 
         if (existingTeacherByEmail) {
             res.send({ message: 'Email already exists' });
         }
         else {
-            let result = await teacher.save();
-            await Subject.findByIdAndUpdate(teachSubject, { teacher: teacher._id });
+           
+            const result = await TeacherModel.create({ name, email, password: hashedPass, role, school, teachSubject, teachSclass });
+            await SubjectModel.findByIdAndUpdate(teachSubject, { teacher: teacher._id });
             const { password, ...data } = result?._doc;
             return res.status(201)({ error: false, message: "Registration Successful", data });
         }
@@ -102,7 +101,7 @@ const updateTeacherSubject = async (req, res) => {
 
         await SubjectModel.findByIdAndUpdate(teacherSubject, { teacher: updatedTeacher._id });
 
-        res.send(updatedTeacher);
+        res.status(200).json({ error: false, message: "Updated Successfully!", data: updatedTeacher });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -117,7 +116,7 @@ const deleteTeacher = async (req, res) => {
             { $unset: { teacher: 1 } }
         );
 
-        return res.send(deletedTeacher);
+        return res.status(200).json({ error: false, message: "Updated Successfully!", data: deletedTeacher });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -140,7 +139,7 @@ const deleteTeachers = async (req, res) => {
             { $unset: { teacher: "" }, $unset: { teacher: null } }
         );
 
-        return res.send(deletionResult);
+        return res.status(200).json({ error: false, message: "Updated Successfully!", data: deletedTeachers });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -163,7 +162,7 @@ const deleteTeachersByClass = async (req, res) => {
             { $unset: { teacher: "" }, $unset: { teacher: null } }
         );
 
-        res.send(deletionResult);
+        res.status(200).json({ error: false, message: "Updated Successfully!", data: deletionResult });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -191,7 +190,7 @@ const teacherAttendance = async (req, res) => {
         }
 
         const result = await teacher.save();
-        return res.send(result);
+        return res.status(200).json({ error: false, message: "Updated Successfully!", data: result });
     } catch (error) {
         res.status(500).json(error)
     }

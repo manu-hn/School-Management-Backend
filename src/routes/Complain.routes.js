@@ -3,9 +3,9 @@ const { complainCreate, complainList } = require("../controller/complainControll
 
 const router = express.Router();
 
-router.post('/create-complaint', complainCreate);
+router.post('/ComplainCreate', complainCreate);
 
-router.get('/get-complaint/:id', complainList);
+router.get('/ComplainList/:id', complainList);
 
 
 module.exports = router;

@@ -25,7 +25,7 @@ const subjectCreate = async (req, res, next) => {
             }));
 
             const result = await SubjectModel.insertMany(newSubjects);
-            res.send(result);
+            res.status(200).json({ error: false, data: result });
         }
     } catch (err) {
         next(err);
@@ -37,7 +37,7 @@ const allSubjects = async (req, res) => {
         let subjects = await Subject.find({ school: req.params.id })
             .populate("sclassName", "sclassName")
         if (subjects.length > 0) {
-            res.send(subjects)
+            res.status(200).json({ error: false, data: subjects })
         } else {
             res.send({ message: "No subjects found" });
         }
@@ -110,7 +110,7 @@ const deleteSubject = async (req, res) => {
             { $pull: { attendance: { subName: deletedSubject._id } } }
         );
 
-        res.send(deletedSubject);
+        res.status(200).json({ error: false, data: deletedSubject });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -132,7 +132,7 @@ const deleteSubjects = async (req, res) => {
             { $set: { examResult: null, attendance: null } }
         );
 
-        res.send(deletedSubjects);
+        res.status(200).json({ error: false, message: "DeletedSuccessfully!", data: deletedSubjects });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -154,7 +154,7 @@ const deleteSubjectsByClass = async (req, res) => {
             { $set: { examResult: null, attendance: null } }
         );
 
-        res.send(deletedSubjects);
+        res.status(200).json({ error: false, message: "Deleted Successfully!", data: deletedSubjects });
     } catch (error) {
         res.status(500).json(error);
     }

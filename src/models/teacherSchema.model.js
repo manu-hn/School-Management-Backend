@@ -10,10 +10,7 @@ const teacherSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
-    dateOfBirth: {
-        type: Date,
-        required: true,
-    },
+  
     password: {
         type: String,
         required: true,

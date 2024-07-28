@@ -4,7 +4,7 @@ const complainCreate = async (req, res) => {
     try {
         const complain = new ComplainModel(req.body)
         const result = await complain.save()
-        res.send(result)
+        res.status(200).json({ error: false, data: result })
     } catch (err) {
         res.status(500).json(err);
     }

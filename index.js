@@ -19,13 +19,13 @@ app.use(express.json({ limit: '20mb' }));
 app.use(cors());
 
 //routes
-app.use('/api/admin', AdminRoutes);
-app.use('/api/student', StudentRoutes);
-app.use('/api/teacher', TeacherRoutes);
-app.use('/api/subject', SubjectRoutes);
-app.use('/api/complaint', ComplaintRoutes);
-app.use('/api/s-class', S_ClassRoutes);
-app.use('/api/notice', NoticeRoutes);
+app.use('/api', AdminRoutes);
+app.use('/api', StudentRoutes);
+app.use('/api', TeacherRoutes);
+app.use('/api', SubjectRoutes);
+app.use('/api', ComplaintRoutes);
+app.use('/api', S_ClassRoutes);
+app.use('/api', NoticeRoutes);
 
 app.use("*", function (req, res) {
     return res.status(404).json({ message: "Page not found" });
